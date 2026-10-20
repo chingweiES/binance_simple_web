@@ -1,1 +1,307 @@
-ㄅˇ123123
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10151d">
+  <title>Binance 公開行情工具</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #10151d;
+      color: #edf2f7;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --muted: #95a2b3;
+      --border: #293340;
+      --panel: #171e28;
+      --accent: #f0b90b;
+      --green: #24b47e;
+      --red: #f05b6f;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, select { font: inherit; }
+    .page { width: min(1060px, calc(100% - 36px)); margin: 0 auto; padding: 56px 0 40px; }
+    .topline { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: var(--accent); color: #171717; font-weight: 900; }
+    h1 { margin: 24px 0 10px; font-size: clamp(30px, 5vw, 46px); letter-spacing: -1.5px; }
+    .intro { max-width: 650px; margin: 0; color: var(--muted); line-height: 1.75; }
+    .toolbar { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin: 30px 0 18px; }
+    label { display: grid; gap: 8px; color: var(--muted); font-size: 13px; }
+    select, button { min-height: 43px; border: 1px solid var(--border); border-radius: 9px; }
+    select { min-width: 160px; padding: 0 36px 0 12px; background: var(--panel); color: #fff; }
+    button { padding: 0 15px; background: #222c39; color: #f3f6fa; cursor: pointer; transition: background .15s, transform .15s, border-color .15s; }
+    button:hover:not(:disabled) { background: #303d4c; border-color: #546477; transform: translateY(-1px); }
+    button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    button:disabled { cursor: wait; opacity: .6; }
+    .primary { border-color: var(--accent); background: var(--accent); color: #161616; font-weight: 700; }
+    .primary:hover:not(:disabled) { border-color: #ffd34e; background: #ffd34e; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card { display: flex; min-height: 270px; flex-direction: column; padding: 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); }
+    .card-head { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+    .card h2 { margin: 0; font-size: 17px; }
+    .endpoint { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .tag { padding: 5px 8px; border-radius: 20px; background: #292719; color: var(--accent); font-size: 11px; white-space: nowrap; }
+    .result { flex: 1; margin: 24px 0 18px; }
+    .placeholder { color: #728094; font-size: 14px; line-height: 1.65; }
+    .big-number { margin: 0; font-size: clamp(25px, 3vw, 34px); font-weight: 700; letter-spacing: -.7px; overflow-wrap: anywhere; }
+    .subline { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+    .stat { display: grid; gap: 5px; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .stat-value { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+    .positive { color: var(--green); }
+    .negative { color: var(--red); }
+    .action { width: 100%; margin-top: auto; }
+    .book-title { margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+    .book-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-variant-numeric: tabular-nums; font-size: 12px; }
+    .book-row span:last-child { color: var(--muted); }
+    .book-side { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .status { min-height: 22px; margin: 16px 0 0; color: var(--muted); font-size: 13px; }
+    .status.error { color: var(--red); }
+    footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.7; }
+    footer a { color: #d9b94b; }
+    @media (max-width: 780px) { .cards { grid-template-columns: 1fr; } .card { min-height: 245px; } .page { padding-top: 34px; } }
+    @media (max-width: 440px) { .toolbar > * { width: 100%; } .toolbar select, .toolbar button { width: 100%; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topline"><span class="brand-mark" aria-hidden="true">B</span><span>BINANCE · PUBLIC MARKET DATA</span></div>
+    <h1>公開行情 API 工具</h1>
+    <p class="intro">選擇交易對，按下按鈕即可向 Binance 讀取即時公開市場資料。此頁面不需要 API Key，也不會下單。</p>
+
+    <div class="toolbar">
+      <label for="symbol">交易對
+        <select id="symbol">
+          <option value="BTCUSDT">BTC / USDT</option>
+          <option value="ETHUSDT">ETH / USDT</option>
+          <option value="BNBUSDT">BNB / USDT</option>
+          <option value="SOLUSDT">SOL / USDT</option>
+        </select>
+      </label>
+      <button class="primary" id="run-all" type="button">執行全部 3 個查詢</button>
+    </div>
+
+    <section class="cards" aria-label="Binance 公開 API 查詢">
+      <article class="card">
+        <div class="card-head">
+          <div><h2>即時報價</h2><p class="endpoint">GET /api/v3/ticker/price</p></div>
+          <span class="tag">最新價格</span>
+        </div>
+        <div class="result" id="price-result" aria-live="polite"><p class="placeholder">按下按鈕載入目前最新成交價。</p></div>
+        <button class="action" type="button" data-action="price">查詢最新價格</button>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div><h2>24 小時行情</h2><p class="endpoint">GET /api/v3/ticker/24hr</p></div>
+          <span class="tag">24 小時統計</span>
+        </div>
+        <div class="result" id="ticker-result" aria-live="polite"><p class="placeholder">查看漲跌幅、最高／最低價與成交量。</p></div>
+        <button class="action" type="button" data-action="ticker">查詢 24 小時行情</button>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div><h2>訂單簿深度</h2><p class="endpoint">GET /api/v3/depth?limit=5</p></div>
+          <span class="tag">買賣盤各 5 檔</span>
+        </div>
+        <div class="result" id="depth-result" aria-live="polite"><p class="placeholder">查看目前委託簿的買入與賣出掛單。</p></div>
+        <button class="action" type="button" data-action="depth">查詢訂單簿</button>
+      </article>
+    </section>
+
+    <p class="status" id="status" role="status" aria-live="polite">尚未執行查詢</p>
+    <footer>
+      資料由 <a href="https://api.binance.com" target="_blank" rel="noreferrer">Binance Spot API</a> 提供，僅供資訊展示，不構成投資建議。GitHub Pages 靜態網頁直接呼叫公開 API；實際可用性可能因網路、地區或 Binance 服務狀態而異。
+    </footer>
+  </main>
+
+  <script>
+    const API_BASE = "https://api.binance.com";
+    const symbolSelect = document.querySelector("#symbol");
+    const statusElement = document.querySelector("#status");
+    const buttons = [...document.querySelectorAll("button")];
+
+    function formatNumber(value, maximumFractionDigits = 8) {
+      const number = Number(value);
+      return Number.isFinite(number)
+        ? new Intl.NumberFormat("en-US", { maximumFractionDigits }).format(number)
+        : value;
+    }
+
+    async function fetchPublicData(path, symbol) {
+      const url = new URL(path, API_BASE);
+      url.searchParams.set("symbol", symbol);
+      if (path.endsWith("/depth")) url.searchParams.set("limit", "5");
+
+      const response = await fetch(url, { headers: { Accept: "application/json" } });
+      const data = await response.json();
+      if (!response.ok) {
+        const detail = data && data.msg ? `：${data.msg}` : "";
+        throw new Error(`Binance API 回應 ${response.status}${detail}`);
+      }
+      return data;
+    }
+
+    function setStatus(message, isError = false) {
+      statusElement.textContent = message;
+      statusElement.classList.toggle("error", isError);
+    }
+
+    function renderPrice(data) {
+      const result = document.querySelector("#price-result");
+      result.replaceChildren();
+      const value = document.createElement("p");
+      value.className = "big-number";
+      value.textContent = `${formatNumber(data.price)} USDT`;
+      const caption = document.createElement("p");
+      caption.className = "subline";
+      caption.textContent = `${data.symbol} · Binance 現貨最新報價`;
+      result.append(value, caption);
+    }
+
+    function renderTicker(data) {
+      const result = document.querySelector("#ticker-result");
+      result.replaceChildren();
+      const change = Number(data.priceChangePercent);
+      const value = document.createElement("p");
+      value.className = `big-number ${change >= 0 ? "positive" : "negative"}`;
+      value.textContent = `${change >= 0 ? "+" : ""}${formatNumber(change, 2)}%`;
+      const caption = document.createElement("p");
+      caption.className = "subline";
+      caption.textContent = `${data.symbol} · 24 小時漲跌幅`;
+      const stats = document.createElement("div");
+      stats.className = "stats";
+      const entries = [
+        ["最新價格", `${formatNumber(data.lastPrice)} USDT`],
+        ["24h 最高", `${formatNumber(data.highPrice)} USDT`],
+        ["24h 最低", `${formatNumber(data.lowPrice)} USDT`],
+        ["24h 成交量", formatNumber(data.volume, 2)]
+      ];
+      for (const [label, text] of entries) {
+        const item = document.createElement("div");
+        item.className = "stat";
+        const name = document.createElement("span");
+        name.className = "stat-label";
+        name.textContent = label;
+        const amount = document.createElement("span");
+        amount.className = "stat-value";
+        amount.textContent = text;
+        item.append(name, amount);
+        stats.append(item);
+      }
+      result.append(value, caption, stats);
+    }
+
+    function renderDepth(data) {
+      const result = document.querySelector("#depth-result");
+      result.replaceChildren();
+      const sides = document.createElement("div");
+      sides.className = "book-side";
+      for (const [title, orders, colorClass] of [
+        ["買入 (Bid)", data.bids, "positive"],
+        ["賣出 (Ask)", data.asks, "negative"]
+      ]) {
+        const side = document.createElement("div");
+        const heading = document.createElement("p");
+        heading.className = `book-title ${colorClass}`;
+        heading.textContent = title;
+        side.append(heading);
+        for (const [price, quantity] of orders.slice(0, 5)) {
+          const row = document.createElement("div");
+          row.className = "book-row";
+          const priceText = document.createElement("span");
+          priceText.className = colorClass;
+          priceText.textContent = formatNumber(price);
+          const quantityText = document.createElement("span");
+          quantityText.textContent = formatNumber(quantity, 4);
+          row.append(priceText, quantityText);
+          side.append(row);
+        }
+        sides.append(side);
+      }
+      result.append(sides);
+    }
+
+    const queries = {
+      price: { path: "/api/v3/ticker/price", target: "#price-result", render: renderPrice, label: "即時報價" },
+      ticker: { path: "/api/v3/ticker/24hr", target: "#ticker-result", render: renderTicker, label: "24 小時行情" },
+      depth: { path: "/api/v3/depth", target: "#depth-result", render: renderDepth, label: "訂單簿深度" }
+    };
+
+    async function runQuery(action) {
+      const query = queries[action];
+      if (!query) return;
+      const symbol = symbolSelect.value;
+      const button = document.querySelector(`[data-action="${action}"]`);
+      button.disabled = true;
+      button.textContent = "載入中…";
+      setStatus(`正在查詢 ${symbol} 的${query.label}…`);
+      try {
+        const data = await fetchPublicData(query.path, symbol);
+        query.render(data);
+        setStatus(`${symbol} ${query.label}已更新 · ${new Date().toLocaleTimeString("zh-TW")}`);
+      } catch (error) {
+        const result = document.querySelector(query.target);
+        const message = error instanceof Error ? error.message : "未知錯誤";
+        result.replaceChildren();
+        const errorText = document.createElement("p");
+        errorText.className = "placeholder";
+        errorText.textContent = `查詢失敗：${message}`;
+        result.append(errorText);
+        setStatus(`${query.label}查詢失敗，請稍後重試。`, true);
+      } finally {
+        button.disabled = false;
+        button.textContent = {
+          price: "查詢最新價格",
+          ticker: "查詢 24 小時行情",
+          depth: "查詢訂單簿"
+        }[action];
+      }
+    }
+
+    for (const button of document.querySelectorAll("[data-action]")) {
+      button.addEventListener("click", () => runQuery(button.dataset.action));
+    }
+
+    document.querySelector("#run-all").addEventListener("click", async (event) => {
+      const runAllButton = event.currentTarget;
+      runAllButton.disabled = true;
+      buttons.forEach((button) => { button.disabled = true; });
+      setStatus(`正在查詢 ${symbolSelect.value} 的全部公開行情…`);
+      try {
+        const symbol = symbolSelect.value;
+        const results = await Promise.allSettled(
+          Object.entries(queries).map(async ([action, query]) => {
+            const data = await fetchPublicData(query.path, symbol);
+            query.render(data);
+            return action;
+          })
+        );
+        const failures = results.filter((result) => result.status === "rejected");
+        if (failures.length) {
+          setStatus(`${symbol} 查詢完成，但有 ${failures.length} 個 API 失敗；請查看各卡片或稍後重試。`, true);
+          failures.forEach((failure, index) => {
+            const action = Object.keys(queries).filter((key, queryIndex) => results[queryIndex].status === "rejected")[index];
+            const result = document.querySelector(queries[action].target);
+            const errorText = document.createElement("p");
+            errorText.className = "placeholder";
+            errorText.textContent = `查詢失敗：${failure.reason instanceof Error ? failure.reason.message : "未知錯誤"}`;
+            result.replaceChildren(errorText);
+          });
+        } else {
+          setStatus(`${symbol} 全部 3 個查詢已更新 · ${new Date().toLocaleTimeString("zh-TW")}`);
+        }
+      } finally {
+        buttons.forEach((button) => { button.disabled = false; });
+        runAllButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
