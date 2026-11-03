@@ -24,22 +24,22 @@
         <div>
           <p class="eyebrow">API CONFIG</p>
           <h2 id="api-title">API 設定（僅用於 getall）</h2>
-          <p class="section-description">用於讀取 /sapi/v1/capital/config/getall（USER_DATA），查詢每個幣種的 networkList。金鑰僅儲存在本機 localStorage，不會上傳至伺服器。</p>
+          <p class="section-description">用於讀取 /sapi/v1/capital/config/getall（USER_DATA），查詢每個幣種的 networkList。金鑰請在 Cloudflare Functions 環境變數中設定，不要直接放在前端。</p>
         </div>
       </div>
       <div class="api-form">
         <label for="api-key">API Key
-          <input id="api-key" type="password" autocomplete="off" placeholder="輸入 API Key">
+          <input id="api-key" type="password" autocomplete="off" placeholder="前端不會直接使用這個值">
         </label>
         <label for="api-secret">Secret Key
-          <input id="api-secret" type="password" autocomplete="off" placeholder="輸入 Secret Key">
+          <input id="api-secret" type="password" autocomplete="off" placeholder="請放在 Cloudflare 環境變數">
         </label>
         <div class="api-actions">
-          <button id="save-api" type="button">儲存 API 設定</button>
+          <button id="save-api" type="button">儲存到本機（僅示意）</button>
           <button id="clear-api" type="button" class="secondary">清除</button>
         </div>
       </div>
-      <p class="status" id="api-status" role="status" aria-live="polite">尚未設定</p>
+      <p class="status" id="api-status" role="status" aria-live="polite">請在 Cloudflare 端設定 BINANCE_API_KEY 與 BINANCE_API_SECRET</p>
     </section>
 
     <section class="panel" aria-labelledby="ticker-title">

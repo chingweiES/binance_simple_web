@@ -565,30 +565,22 @@ function openHistoryDialog(symbol, label, history) {
 
 // ===== 更多資訊：/sapi/v1/capital/config/getall（USER_DATA，需 API Key + Secret 簽名） =====
 const CREDENTIALS_KEY = "binanceApiCredentials";
-const SPOT_API_BASE = "https://api.binance.com";
 
 function getCredentials() {
-  const saved = readStorage(CREDENTIALS_KEY, null);
-  return saved && saved.apiKey && saved.apiSecret ? saved : null;
-}
-
-async function hmacSha256Hex(secret, message) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
-  return [...new Uint8Array(signature)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return null;
 }
 
 async function fetchSigned(path, params = {}) {
-  const credentials = getCredentials();
-  if (!credentials) throw new Error("尚未設定 API Key / Secret");
-  const query = new URLSearchParams({ ...params, recvWindow: "10000", timestamp: String(Date.now()) });
-  query.set("signature", await hmacSha256Hex(credentials.apiSecret, query.toString()));
-  console.log("response", query.toString());
-  
-  const response = await fetch(`${SPOT_API_BASE}${path}?${query}`, { headers: { "X-MBX-APIKEY": credentials.apiKey } });
-  const data = await response.json();
-  if (!response.ok) throw new Error(`Binance API 回應 ${response.status}${data && data.msg ? `：${data.msg}` : ""}`);
+  const query = new URLSearchParams(params);
+  query.set("recvWindow", query.get("recvWindow") || "10000");
+  query.set("timestamp", String(Date.now()));
+
+  const response = await fetch(`/api/wallet?path=${encodeURIComponent(path)}&${query.toString()}`);
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    const msg = data && (data.error || data.msg) ? `${data.error || data.msg}` : `HTTP ${response.status}`;
+    throw new Error(`Cloudflare Function 回應 ${response.status}：${msg}`);
+  }
   return data;
 }
 
@@ -612,16 +604,12 @@ async function openNetworkDialog(symbol) {
     p.textContent = text;
     return p;
   };
-  if (!getCredentials()) {
-    openInfoDialog(title, message("請先在上方「API 設定」填入 API Key 與 Secret Key（getall 為 USER_DATA，需要簽名）。", true));
-    return;
-  }
   if (!state.coinMap) {
     openInfoDialog(title, message("正在讀取幣種資訊…"));
     try {
       await loadCoinConfig();
     } catch (error) {
-      openInfoDialog(title, message(`讀取失敗：${error.message}`, true));
+      openInfoDialog(title, message(`讀取失敗：${error.message}。請確認 Cloudflare Functions 已設定 BINANCE_API_KEY 與 BINANCE_API_SECRET。`, true));
       return;
     }
   }
@@ -919,22 +907,17 @@ if (savedCredentials) {
   setStatus(apiStatus, "已從本機瀏覽器載入 API 設定");
 }
 document.querySelector("#save-api").addEventListener("click", () => {
-  const apiKey = apiKeyInput.value.trim();
-  const apiSecret = apiSecretInput.value.trim();
-  if (!apiKey || !apiSecret) {
-    setStatus(apiStatus, "API Key 與 Secret Key 都要填", true);
-    return;
-  }
+  setStatus(apiStatus, "此頁面不直接使用 API Key，請在 Cloudflare Functions 的環境變數中設定 BINANCE_API_KEY 與 BINANCE_API_SECRET", false);
+  apiKeyInput.value = "";
+  apiSecretInput.value = "";
   state.coinMap = null;
-  const saved = writeStorage(CREDENTIALS_KEY, { apiKey, apiSecret });
-  setStatus(apiStatus, saved ? "已儲存於本機瀏覽器（localStorage）" : "儲存失敗", !saved);
 });
 document.querySelector("#clear-api").addEventListener("click", () => {
   localStorage.removeItem(CREDENTIALS_KEY);
   apiKeyInput.value = "";
   apiSecretInput.value = "";
   state.coinMap = null;
-  setStatus(apiStatus, "已清除 API 設定");
+  setStatus(apiStatus, "已清除前端範例欄位；真正的金鑰請在 Cloudflare 環境變數中設定");
 });
 
 const storedFavorites = readStorage(FAVORITES_KEY, []);
