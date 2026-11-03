@@ -16,8 +16,31 @@
         <span>BINANCE · USDT-M PERPETUAL</span>
       </div>
       <h1>永續合約觀察站</h1>
-      <p class="intro">查詢 USDT 永續合約 24 小時行情、建立最愛清單，並用 K 線資料比較近期波動。此頁面只讀取公開資料，不需要 API 金鑰，也不會下單。</p>
+      <p class="intro">查詢 USDT 永續合約 24 小時行情、建立最愛清單，並用 K 線資料比較近期波動。公開行情不需要 API 金鑰；若要查看各幣種的 networkList，則需要填入 API Key 與 Secret Key。</p>
     </header>
+
+    <section class="panel api-panel" aria-labelledby="api-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">API CONFIG</p>
+          <h2 id="api-title">API 設定（僅用於 getall）</h2>
+          <p class="section-description">用於讀取 /sapi/v1/capital/config/getall（USER_DATA），查詢每個幣種的 networkList。金鑰僅儲存在本機 localStorage，不會上傳至伺服器。</p>
+        </div>
+      </div>
+      <div class="api-form">
+        <label for="api-key">API Key
+          <input id="api-key" type="password" autocomplete="off" placeholder="輸入 API Key">
+        </label>
+        <label for="api-secret">Secret Key
+          <input id="api-secret" type="password" autocomplete="off" placeholder="輸入 Secret Key">
+        </label>
+        <div class="api-actions">
+          <button id="save-api" type="button">儲存 API 設定</button>
+          <button id="clear-api" type="button" class="secondary">清除</button>
+        </div>
+      </div>
+      <p class="status" id="api-status" role="status" aria-live="polite">尚未設定</p>
+    </section>
 
     <section class="panel" aria-labelledby="ticker-title">
       <div class="section-heading">
@@ -58,10 +81,12 @@
               <th scope="col"><button class="sort-button" data-table="ticker" data-sort="highPrice" type="button">24 小時最高</button></th>
               <th scope="col"><button class="sort-button" data-table="ticker" data-sort="lowPrice" type="button">24 小時最低</button></th>
               <th scope="col"><button class="sort-button" data-table="ticker" data-sort="quoteVolume" type="button">24 小時成交額 (USDT)</button></th>
+              <th scope="col"><button class="sort-button" data-table="ticker" data-sort="lastFundingRate" type="button">最新資金費率</button></th>
+              <th scope="col" class="more-heading">更多資訊</th>
             </tr>
           </thead>
           <tbody id="ticker-body">
-            <tr><td class="empty-cell" colspan="7">尚無行情資料，請按「載入／更新行情」。</td></tr>
+            <tr><td class="empty-cell" colspan="9">尚無行情資料，請按「載入／更新行情」。</td></tr>
           </tbody>
         </table>
       </div>
@@ -108,6 +133,11 @@
           <input id="include-current-kline" type="checkbox">
           包含當下 K 線
         </label>
+        <label class="checkbox-control switch-control" for="show-extra">
+          <input id="show-extra" type="checkbox" role="switch">
+          <span class="switch-track" aria-hidden="true"></span>
+          顯示額外資訊
+        </label>
       </div>
       <p class="formula-note" id="mode-description">BodyAmp = (收盤價 − 開盤價) ÷ 開盤價 × 100%，可正可負。</p>
       <p class="status" id="analysis-status" role="status" aria-live="polite">尚未分析</p>
@@ -120,6 +150,29 @@
         </table>
       </div>
     </section>
+
+    <dialog id="history-dialog" class="history-dialog" aria-labelledby="history-title">
+      <div class="dialog-header">
+        <h3 id="history-title">歷史資料</h3>
+        <button id="history-close" type="button" aria-label="關閉">✕</button>
+      </div>
+      <div class="table-wrap dialog-table">
+        <table>
+          <thead>
+            <tr><th scope="col">時間</th><th scope="col">多空比</th><th scope="col">多方比例</th><th scope="col">空方比例</th></tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </dialog>
+
+    <dialog id="info-dialog" class="info-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-header">
+        <h3 id="dialog-title">資訊</h3>
+        <button id="dialog-close" type="button" aria-label="關閉">✕</button>
+      </div>
+      <div id="dialog-content"></div>
+    </dialog>
 
     <p class="status page-status" id="page-status" role="status" aria-live="polite">準備就緒</p>
     <footer>

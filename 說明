@@ -1,0 +1,120 @@
+拿24hour的大張表後，緊接著拿 "最新标记价格和资金费率" (應該是 /fapi/v1/premiumIndex 請確認)。不帶 symbol。
+然後跟大表整合，也顯示出來 (但我只需要最新資金費率就好，正的用綠色，負的用紅色)。
+
+
+交易對不用顯示USDT上下表格都是
+表格比較寬，左右滑動的時候，固定第一個欄位。
+欄位使用否跟是的改用 打勾跟打叉叉。並且用綠色跟紅色
+分析跟數不用變成一個欄位還顯示出來。
+
+我的最愛的分析，分析後。加入以下API
+以下的叫做額外資訊，給我一個 toggle 讓我隨時隨地決定要不要秀出這些額外資訊欄位。
+以下只有"获取未平仓合约数"是每一個交易對一個數值。
+其他的都是每一個交易對的"歷史資料，會有limit設定，目前都不設定用他預設的"
+
+1. 多空持仓人数比 (/futures/data/globalLongShortAccountRatio) 欄位名稱："多空人數比" ((顯示最新的timestamp的longShortRatio))
+2. 获取未平仓合约数 (欄位名稱：最新持倉量) (顯示回傳的 openInterest)
+3. 大户持仓量多空比 (MARKET_DATA)(欄位名稱: 大戶持倉量多空比) (顯示最新的timestamp的longShortRatio)
+4. 大户账户数多空比 (MARKET_DATA)(欄位名稱: 大戶帳戶數多空比) (顯示最新的timestamp的longShortRatio)
+
+1,3,4因為是歷史資料。所以要可以點擊，然後彈跳視窗顯示
+
+
+
+新增功能：
+獲取: 获取所有币信息 (USER_DATA) /sapi/v1/capital/config/getall (這個需要API_key)
+獲取其 networkList
+放在主標最後一個欄位(有一個小icon，這個欄位叫做更多資訊。)。目前這個networkList 是一個list。先就秀出這個給我，一樣點擊icon後彈跳視窗。
+分析表格額外資訊的那三個歷史資料，不要用表格，用真的時間序列的圖給我。參考"參考圖_持倉量與多空比.png"
+另外，分析建案完後過後，上方主表對應的資金費率，也要在下面表格呈現，不用納入"額外資訊"。預設就是一直呈現。
+
+
+
+
+    {
+      "symbol": "LINKUSDT",
+      "pair": "LINKUSDT",
+      "contractType": "PERPETUAL",
+      "deliveryDate": 4133404800000,
+      "onboardDate": 1579248000000,
+      "status": "TRADING",
+      "maintMarginPercent": "2.5000",
+      "requiredMarginPercent": "5.0000",
+      "baseAsset": "LINK",
+      "quoteAsset": "USDT",
+      "marginAsset": "USDT",
+      "pricePrecision": 3,
+      "quantityPrecision": 2,
+      "baseAssetPrecision": 8,
+      "quotePrecision": 8,
+      "underlyingType": "COIN",
+      "underlyingSubType": [
+        "Infrastructure",
+        "Crypto"
+      ],
+      "triggerProtect": "0.1000",
+      "liquidationFee": "0.012500",
+      "marketTakeBound": "0.10",
+      "maxMoveOrderLimit": 10000,
+      "filters": [
+        {
+          "maxPrice": "100000",
+          "filterType": "PRICE_FILTER",
+          "tickSize": "0.001",
+          "minPrice": "0.001"
+        },
+        {
+          "filterType": "LOT_SIZE",
+          "minQty": "0.01",
+          "maxQty": "700000",
+          "stepSize": "0.01"
+        },
+        {
+          "filterType": "MARKET_LOT_SIZE",
+          "stepSize": "0.01",
+          "minQty": "0.01",
+          "maxQty": "50000"
+        },
+        {
+          "filterType": "MAX_NUM_ORDERS",
+          "limit": 200
+        },
+        {
+          "notional": "20",
+          "filterType": "MIN_NOTIONAL"
+        },
+        {
+          "filterType": "PERCENT_PRICE",
+          "multiplierUp": "1.1000",
+          "multiplierDown": "0.9000",
+          "multiplierDecimal": "4"
+        },
+        {
+          "filterType": "POSITION_RISK_CONTROL",
+          "positionControlSide": "NONE"
+        }
+      ],
+      "orderTypes": [
+        "LIMIT",
+        "MARKET",
+        "STOP",
+        "STOP_MARKET",
+        "TAKE_PROFIT",
+        "TAKE_PROFIT_MARKET",
+        "TRAILING_STOP_MARKET"
+      ],
+      "timeInForce": [
+        "GTC",
+        "IOC",
+        "FOK",
+        "GTX",
+        "GTD"
+      ],
+      "permissionSets": [
+        "GRID",
+        "COPY",
+        "RPI",
+        "DCA",
+        "PSB"
+      ]
+    },
