@@ -147,7 +147,7 @@ function renderTickers() {
 
     const symbolCell = document.createElement("td");
     symbolCell.className = "symbol-cell";
-    symbolCell.textContent = ticker.symbol;
+    symbolCell.append(createBinanceLink(ticker.symbol));
     row.append(favoriteCell, symbolCell);
 
     for (const key of ["lastPrice", "priceChangePercent", "highPrice", "lowPrice", "quoteVolume"]) {
@@ -381,7 +381,7 @@ function renderAnalysis() {
       const value = item[key];
       if (key === "symbol") {
         cell.className = "symbol-cell";
-        cell.textContent = value;
+        cell.append(createBinanceLink(value, state.analysisInterval));
       } else if (key === "averageBodyAmp" || key === "averageWholeAmp") {
         cell.className = value >= 0 ? "positive" : "negative";
         cell.textContent = `${value >= 0 ? "+" : ""}${formatNumber(value, 4)}%`;
@@ -405,6 +405,24 @@ function renderAnalysis() {
   updateSortIndicators("analysis", state.analysisSort);
 }
 
+// 幣安 APP 深連結：_dp 為 "/trade/trade?at=futures&symbol=XXX[&interval=15m]" 的 base64
+function binanceFuturesUrl(symbol, interval) {
+  let deepPath = `/trade/trade?at=futures&symbol=${symbol}`;
+  if (interval) deepPath += `&interval=${interval}`;
+  return `https://app.binance.com/zh-TC/futures/${symbol}?_dp=${encodeURIComponent(btoa(deepPath))}`;
+}
+
+function createBinanceLink(symbol, interval) {
+  const link = document.createElement("a");
+  link.href = binanceFuturesUrl(symbol, interval);
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.className = "symbol-link";
+  link.textContent = symbol;
+  link.title = `在幣安 APP 開啟 ${symbol} 永續合約`;
+  return link;
+}
+
 async function analyzeFavorites() {
   const button = document.querySelector("#analyze-favorites");
   const symbols = [...state.favorites];
@@ -418,6 +436,7 @@ async function analyzeFavorites() {
   state.analysisRows = [];
   renderAnalysis();
   const interval = document.querySelector("#interval").value;
+  state.analysisInterval = interval;
   const intervalLabel = document.querySelector("#interval").selectedOptions[0].textContent;
   const count = Number(lookbackSelect.value);
   const includeCurrentKline = document.querySelector("#include-current-kline").checked;

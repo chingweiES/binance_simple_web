@@ -90,3 +90,13 @@ footer { margin-top: 26px; padding-top: 17px; border-top: 1px solid var(--border
   .toolbar select { width: 100%; }
   th, td { padding: 10px 11px; }
 }
+
+.symbol-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dashed currentColor;
+}
+
+.symbol-link:hover {
+  color: #f0b90b;
+}
