@@ -1,0 +1,13 @@
+name = "binance-simple-web"
+main = "worker.js"
+compatibility_date = "2024-10-01"
+
+[assets]
+directory = "./public"
+
+[vars]
+# 這些值也可以改成 Cloudflare Dashboard -> Settings -> Variables
+# 但正式環境建議直接在 dashboard 設定，不要放在檔案裡。
+
+[observability]
+enabled = true

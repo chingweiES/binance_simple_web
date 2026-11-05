@@ -579,7 +579,7 @@ async function fetchSigned(path, params = {}) {
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     const msg = data && (data.error || data.msg) ? `${data.error || data.msg}` : `HTTP ${response.status}`;
-    throw new Error(`Cloudflare Function 回應 ${response.status}：${msg}`);
+    throw new Error(`Cloudflare Worker 回應 ${response.status}：${msg}`);
   }
   return data;
 }
@@ -609,7 +609,7 @@ async function openNetworkDialog(symbol) {
     try {
       await loadCoinConfig();
     } catch (error) {
-      openInfoDialog(title, message(`讀取失敗：${error.message}。請確認 Cloudflare Functions 已設定 BINANCE_API_KEY 與 BINANCE_API_SECRET。`, true));
+      openInfoDialog(title, message(`讀取失敗：${error.message}。請確認 Cloudflare Worker 已設定 BINANCE_API_KEY 與 BINANCE_API_SECRET。`, true));
       return;
     }
   }
@@ -907,7 +907,7 @@ if (savedCredentials) {
   setStatus(apiStatus, "已從本機瀏覽器載入 API 設定");
 }
 document.querySelector("#save-api").addEventListener("click", () => {
-  setStatus(apiStatus, "此頁面不直接使用 API Key，請在 Cloudflare Functions 的環境變數中設定 BINANCE_API_KEY 與 BINANCE_API_SECRET", false);
+  setStatus(apiStatus, "此頁面不直接使用 API Key，請在 Cloudflare Worker 的環境變數中設定 BINANCE_API_KEY 與 BINANCE_API_SECRET", false);
   apiKeyInput.value = "";
   apiSecretInput.value = "";
   state.coinMap = null;
@@ -917,7 +917,7 @@ document.querySelector("#clear-api").addEventListener("click", () => {
   apiKeyInput.value = "";
   apiSecretInput.value = "";
   state.coinMap = null;
-  setStatus(apiStatus, "已清除前端範例欄位；真正的金鑰請在 Cloudflare 環境變數中設定");
+  setStatus(apiStatus, "已清除前端範例欄位；真正的金鑰請在 Cloudflare Worker 環境變數中設定");
 });
 
 const storedFavorites = readStorage(FAVORITES_KEY, []);

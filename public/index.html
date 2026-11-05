@@ -24,7 +24,7 @@
         <div>
           <p class="eyebrow">API CONFIG</p>
           <h2 id="api-title">API 設定（僅用於 getall）</h2>
-          <p class="section-description">用於讀取 /sapi/v1/capital/config/getall（USER_DATA），查詢每個幣種的 networkList。金鑰請在 Cloudflare Functions 環境變數中設定，不要直接放在前端。</p>
+          <p class="section-description">用於讀取 /sapi/v1/capital/config/getall（USER_DATA），查詢每個幣種的 networkList。金鑰請在 Cloudflare Worker 環境變數中設定，不要直接放在前端。</p>
         </div>
       </div>
       <div class="api-form">
@@ -39,7 +39,7 @@
           <button id="clear-api" type="button" class="secondary">清除</button>
         </div>
       </div>
-      <p class="status" id="api-status" role="status" aria-live="polite">請在 Cloudflare 端設定 BINANCE_API_KEY 與 BINANCE_API_SECRET</p>
+      <p class="status" id="api-status" role="status" aria-live="polite">請在 Cloudflare Worker 端設定 BINANCE_API_KEY 與 BINANCE_API_SECRET</p>
     </section>
 
     <section class="panel" aria-labelledby="ticker-title">
