@@ -100,19 +100,19 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 .api-actions { display: flex; gap: 9px; align-items: end; }
 .secondary { background: transparent; }
-.info-dialog, .history-dialog { width: min(760px, calc(100% - 24px)); max-height: 80vh; padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); color: inherit; }
-.info-dialog::backdrop, .history-dialog::backdrop { background: rgba(5,8,12,.72); backdrop-filter: blur(3px); }
+.info-dialog { width: min(760px, calc(100% - 24px)); max-height: 86vh; padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); color: inherit; }
+.info-dialog.wide { width: min(1100px, calc(100% - 24px)); }
+.info-dialog::backdrop { background: rgba(5,8,12,.72); backdrop-filter: blur(3px); }
 .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .dialog-header h3 { margin: 0; font-size: 16px; }
 .dialog-header button { min-height: 34px; }
-#dialog-content { display: grid; gap: 12px; }
-#dialog-content > p { margin: 0; line-height: 1.7; }
-#dialog-content .status { margin: 0; }
+.dialog-content { display: grid; gap: 12px; }
+.dialog-content > p { margin: 0; line-height: 1.7; }
+.dialog-content .status { margin: 0; }
 .raw-json { margin-top: 12px; }
 .raw-json summary { cursor: pointer; color: #dfe9f5; }
 .raw-json pre { margin: 10px 0 0; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: #0d1219; overflow: auto; white-space: pre-wrap; word-break: break-word; }
 .chart-wrap { display: grid; gap: 12px; }
-.ratio-chart { width: 100%; height: auto; display: block; border: 1px solid var(--border); border-radius: 12px; background: #0d1219; }
 .chart-grid { stroke: rgba(149,162,179,.35); stroke-width: 1; }
 .chart-axis { fill: #a7b4c5; font-size: 11px; }
 .chart-bar .bar-short { fill: rgba(240,91,111,.76); }
@@ -140,30 +140,35 @@ footer { margin-top: 26px; padding-top: 17px; border-top: 1px solid var(--border
   th, td { padding: 10px 11px; }
 }
 
-.symbol-link {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px dashed currentColor;
-}
+.symbol-link { color: inherit; text-decoration: none; border-bottom: 1px dashed currentColor; }
+.symbol-link:hover { color: var(--accent); }
+.symbol-inner { display: inline-flex; align-items: center; gap: 8px; }
+.chart-button { display: inline-grid; place-items: center; width: 24px; min-height: 24px; height: 24px; padding: 0; border-color: transparent; background: transparent; color: var(--muted); }
+.chart-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.chart-button:hover:not(:disabled) { transform: none; color: var(--accent); border-color: var(--accent); background: rgba(240,185,11,.08); }
+.icon-button { min-height: 30px; padding: 0 10px; }
+.muted { margin: 0; color: var(--muted); font-size: 13px; }
 
-.symbol-link:hover {
-  color: #f0b90b;
-}
+/* 伺服器狀態 */
+.server-pill { margin-left: auto; padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.server-pill.ok { border-color: rgba(36,180,126,.5); color: var(--green); }
+.server-pill.warn { border-color: rgba(240,185,11,.5); color: var(--accent); }
+.server-pill.bad { border-color: rgba(240,91,111,.5); color: var(--red); }
 
 /* 固定第一欄（行情表固定「最愛 + 交易對」） */
-.table-wrap td:first-child,
-.table-wrap th:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); }
+.table-wrap td:first-child, .table-wrap th:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); }
 .table-wrap th:first-child { background: #1d2632; z-index: 2; }
 .table-wrap tbody tr:nth-child(even) td:first-child { background: #19212c; }
-#ticker-table th:first-child, #ticker-table td:first-child { width: 56px; min-width: 56px; max-width: 56px; }
-#ticker-table td:nth-child(2), #ticker-table th:nth-child(2) { position: sticky; left: 56px; z-index: 1; background: var(--panel); box-shadow: 1px 0 0 var(--border); }
-#ticker-table th:nth-child(2) { background: #1d2632; z-index: 2; }
-#ticker-table tbody tr:nth-child(even) td:nth-child(2) { background: #19212c; }
-#analysis-table td:first-child, #analysis-table th:first-child { box-shadow: 1px 0 0 var(--border); text-align: left; }
+.ticker-table th:first-child, .ticker-table td:first-child { width: 56px; min-width: 56px; max-width: 56px; }
+.ticker-table td:nth-child(2), .ticker-table th:nth-child(2) { position: sticky; left: 56px; z-index: 1; background: var(--panel); box-shadow: 1px 0 0 var(--border); }
+.ticker-table th:nth-child(2) { background: #1d2632; z-index: 2; }
+.ticker-table tbody tr:nth-child(even) td:nth-child(2) { background: #19212c; }
+.analysis-table td:first-child, .analysis-table th:first-child { box-shadow: 1px 0 0 var(--border); text-align: left; }
 .table-wrap td.empty-cell { position: static; }
+.dialog-table { max-height: calc(80vh - 90px); overflow-y: auto; }
+.dialog-table td:first-child, .dialog-table th:first-child { position: static; }
 
-.bool-cell { font-size: 15px; font-weight: 700; }
-
+.bool-mark { font-size: 15px; font-weight: 700; }
 .history-button { min-height: 0; padding: 2px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--accent); font-size: inherit; text-decoration: underline dotted; }
 .history-button:hover:not(:disabled) { transform: none; border-color: var(--accent); background: rgba(240,185,11,.08); }
 
@@ -175,11 +180,11 @@ footer { margin-top: 26px; padding-top: 17px; border-top: 1px solid var(--border
 .switch-control input:checked + .switch-track::after { transform: translateX(16px); }
 .switch-control input:focus-visible + .switch-track { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* 歷史資料彈窗 */
-.history-dialog { width: min(620px, calc(100% - 24px)); max-height: 80vh; padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); color: inherit; }
-.history-dialog::backdrop { background: rgba(5,8,12,.7); backdrop-filter: blur(3px); }
-.dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-.dialog-header h3 { margin: 0; font-size: 16px; }
-.dialog-header button { min-height: 34px; }
-.dialog-table { max-height: calc(80vh - 90px); overflow-y: auto; }
-.dialog-table td:first-child, .dialog-table th:first-child { position: static; }
+/* TradingView 風格圖表 */
+.tv-chart { width: 100%; height: 320px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tv-chart.tall { height: min(560px, 62vh); }
+.chart-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.chart-toolbar button { min-height: 30px; padding: 0 10px; font-size: 12px; background: transparent; }
+.chart-toolbar button.active { border-color: var(--accent); color: var(--accent); }
+.chart-legend.ohlc { min-height: 18px; font-variant-numeric: tabular-nums; }
+.dialog-content .status { margin: 0; }

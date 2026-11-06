@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    restart: unless-stopped
+    # 不對外開 port，只讓 nginx 在內部網路存取
+    expose:
+      - "8000"
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
