@@ -188,3 +188,13 @@ footer { margin-top: 26px; padding-top: 17px; border-top: 1px solid var(--border
 .chart-toolbar button.active { border-color: var(--accent); color: var(--accent); }
 .chart-legend.ohlc { min-height: 18px; font-variant-numeric: tabular-nums; }
 .dialog-content .status { margin: 0; }
+
+/* 登入／修改密碼 */
+.login-page { display: grid; min-height: 100vh; place-items: center; padding: 24px 0; }
+.login-page .auth-form { width: min(380px, 100%); }
+.login-page h1 { margin: 6px 0 0; font-size: 24px; }
+.auth-form { display: grid; gap: 14px; }
+.auth-form label { display: flex; flex-direction: column; gap: 8px; color: var(--muted); font-size: 13px; }
+.auth-form .status { margin: 0; }
+.header-actions { display: flex; gap: 8px; }
+.header-actions button { min-height: 30px; padding: 0 10px; font-size: 12px; }

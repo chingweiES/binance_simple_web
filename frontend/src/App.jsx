@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { ChangePasswordForm, LoginScreen } from "./components/Auth.jsx";
 import AnalysisPanel from "./components/AnalysisPanel.jsx";
 import CandleChart from "./components/CandleChart.jsx";
 import Dialog from "./components/Dialog.jsx";
 import NetworkInfo from "./components/NetworkInfo.jsx";
 import TickerPanel from "./components/TickerPanel.jsx";
+import { auth, UNAUTHORIZED_EVENT } from "./lib/api.js";
 import { displaySymbol } from "./lib/format.js";
 import { KEYS, readStorage, writeStorage } from "./lib/storage.js";
 
@@ -13,6 +15,22 @@ function initialTickers() {
 }
 
 export default function App() {
+  // null = 確認中；登入後才載入主畫面（其中的 /api 請求都需要登入）
+  const [loggedIn, setLoggedIn] = useState(null);
+
+  useEffect(() => {
+    auth.me().then((r) => setLoggedIn(Boolean(r.loggedIn))).catch(() => setLoggedIn(false));
+    const onUnauthorized = () => setLoggedIn(false);
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+  }, []);
+
+  if (loggedIn === null) return null;
+  if (!loggedIn) return <LoginScreen onLoggedIn={() => setLoggedIn(true)} />;
+  return <Dashboard onLogout={() => setLoggedIn(false)} />;
+}
+
+function Dashboard({ onLogout }) {
   const [cache] = useState(initialTickers);
   const [tickers, setTickers] = useState(cache?.tickers ?? []);
   const [favorites, setFavorites] = useState(() => {
@@ -41,6 +59,8 @@ export default function App() {
     setDialog({ title: `${displaySymbol(symbol)} · 永續合約 K 線`, wide: true, content: <CandleChart symbol={symbol} initialInterval={interval ?? "15m"} /> });
   const openMoreInfo = (symbol) =>
     setDialog({ title: `${displaySymbol(symbol)} · 更多資訊`, content: <NetworkInfo symbol={symbol} /> });
+  const openChangePassword = () => setDialog({ title: "修改密碼", content: <ChangePasswordForm /> });
+  const logout = () => auth.logout().catch(() => {}).finally(onLogout);
 
   return (
     <main className="page">
@@ -51,8 +71,12 @@ export default function App() {
           <span className={`server-pill${server?.ok ? (server.signedApi ? " ok" : " warn") : server ? " bad" : ""}`}>
             {!server ? "連線中…" : !server.ok ? "後端離線" : server.signedApi ? "後端正常 · 已設定金鑰" : "後端正常 · 未設定金鑰"}
           </span>
+          <span className="header-actions">
+            <button type="button" onClick={openChangePassword}>修改密碼</button>
+            <button type="button" onClick={logout}>登出</button>
+          </span>
         </div>
-        <h1>永續合約觀察站</h1>
+        <h1>觀察站</h1>
         <p className="intro">查詢 USDT 永續合約 24 小時行情、建立最愛清單，並用 K 線資料比較近期波動。所有 Binance 請求由自架後端代理，API Secret 只存在伺服器環境變數，不會傳到瀏覽器。</p>
       </header>
 

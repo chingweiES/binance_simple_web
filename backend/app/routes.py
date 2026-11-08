@@ -3,9 +3,19 @@ from __future__ import annotations
 
 from flask import Blueprint, current_app, jsonify, request
 
+from .auth import is_logged_in
 from .binance import BinanceError
 
 bp = Blueprint("api", __name__, url_prefix="/api")
+
+# /api/health 之外的端點都需要登入
+PUBLIC_VIEWS = {"api.health"}
+
+
+@bp.before_request
+def require_login():
+    if request.endpoint not in PUBLIC_VIEWS and not is_logged_in():
+        return jsonify({"error": "請先登入"}), 401
 
 # 公開行情白名單：path -> (允許的 query 參數, 快取秒數)
 PUBLIC_ENDPOINTS: dict[str, tuple[set[str], float]] = {

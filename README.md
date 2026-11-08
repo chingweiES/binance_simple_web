@@ -23,7 +23,11 @@ Binance API Secret 只存在伺服器的 `.env`，瀏覽器只會呼叫同源的
 
 | 路徑 | 說明 |
 | --- | --- |
-| `GET /api/health` | 後端狀態，`signedApi` 表示是否已設定金鑰 |
+| `GET /api/health` | 後端狀態，`signedApi` 表示是否已設定金鑰（不需登入） |
+| `GET /api/auth/me` | 是否已登入 |
+| `POST /api/auth/login` | `{"password"}` 登入（每 IP 每分鐘 10 次，連錯 5 次鎖 5 分鐘） |
+| `POST /api/auth/logout` | 登出 |
+| `POST /api/auth/password` | `{"currentPassword","newPassword"}` 修改密碼，其他裝置的登入會失效 |
 | `GET /api/market/<binance path>?...` | 代理白名單內的 fapi / futures/data 公開端點，例如 `/api/market/fapi/v1/klines?symbol=BTCUSDT&interval=15m` |
 | `GET /api/wallet/coins` | 簽名呼叫 `/sapi/v1/capital/config/getall`（快取 10 分鐘） |
 
@@ -37,7 +41,7 @@ Binance API Secret 只存在伺服器的 `.env`，瀏覽器只會呼叫同源的
 3. 設定並啟動：
 
 ```bash
-cp .env.example .env   # 填入 BINANCE_API_KEY / BINANCE_API_SECRET
+cp .env.example .env   # 填入 BINANCE_API_KEY / BINANCE_API_SECRET / ADMIN_PASSWORD（初始密碼）
 ```
 
 ```bash
@@ -60,9 +64,10 @@ docker compose logs -f backend
 
 ### 安全建議
 
-- 這個站目前沒有登入機制，任何知道 IP 的人都能用；`getall` 只是讀取資訊，但仍建議：
-  - 防火牆只開放自己的 IP 存取 80/443，或
-  - 在 `nginx/default.conf` 加上 `auth_basic`。
+- 網站需要密碼登入（單一使用者）。`ADMIN_PASSWORD` 只在第一次啟動時用來建立 `/data/auth.json`
+  （Docker volume `appdata`），之後在網頁右上角「修改密碼」更改即可，改完 `.env` 的值不再有作用。
+  - 忘記密碼：`docker compose exec backend rm /data/auth.json`，在 `.env` 設新的 `ADMIN_PASSWORD` 後 `docker compose restart backend`。
+- 目前是 HTTP，密碼會以明文經過網路；有網域後請加 HTTPS 並設 `SESSION_COOKIE_SECURE=1`。
 - 有網域時建議加 HTTPS（例如在前面再放 Caddy / certbot，或把憑證掛進 nginx 容器）。
 - 所有使用者共用伺服器 IP 的 Binance 權重額度（fapi 每分鐘 2400），後端已對常用端點做短暫快取，nginx 也有每 IP 速率限制。
 
