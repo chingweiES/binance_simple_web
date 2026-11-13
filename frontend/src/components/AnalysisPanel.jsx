@@ -9,6 +9,14 @@ import RatioChart from "./RatioChart.jsx";
 const ANALYSIS_INTERVALS = INTERVALS.filter(([v]) => v !== "1m");
 const BOOL_KEYS = new Set(["sameDirection", "bodyIncreasing", "absBodyIncreasing"]);
 const PCT_KEYS = new Set(["averageBodyAmp", "averageWholeAmp", "lastBodyAmp"]);
+const MILLION_KEYS = new Set([
+  "totalVolume",
+  "totalQuoteVolume",
+  "totalTakerBuyVolume",
+  "totalTakerBuyQuoteVolume",
+  "totalTakerSellVolume",
+  "totalTakerSellQuoteVolume"
+]);
 
 export default function AnalysisPanel({ favorites, tickers, openDialog, onChart }) {
   const [interval, setIntervalValue] = useState("15m");
@@ -118,7 +126,9 @@ export default function AnalysisPanel({ favorites, tickers, openDialog, onChart 
     if (extra) {
       if (row.extraLoading) return <td key={key}>…</td>;
       if (value === null || value === undefined) return <td key={key}>—</td>;
-      const text = formatNumber(value, key === "openInterest" ? 3 : 4);
+      const text = MILLION_KEYS.has(key)
+        ? `${formatNumber(value / 1_000_000, 2)} M`
+        : formatNumber(value, key === "openInterest" ? 3 : 4);
       const history = extra.historyKey ? row[extra.historyKey] : null;
       return (
         <td key={key}>

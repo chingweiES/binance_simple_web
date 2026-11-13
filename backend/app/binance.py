@@ -62,21 +62,54 @@ class BinanceClient:
     api_key: str = ""
     api_secret: str = ""
     timeout: float = 10.0
+    request_weight_futures_limit_1m: int = 2400
 
     def __post_init__(self):
         self.session = requests.Session()
         self.session.headers.update({"Accept": "application/json", "User-Agent": "binance-simple-web/1.0"})
         self.cache = TTLCache()
+        self._futures_weight_lock = threading.Lock()
+        self._futures_cooldown_until = 0.0
 
     @property
     def has_credentials(self) -> bool:
         return bool(self.api_key and self.api_secret)
 
+    @staticmethod
+    def _is_futures_api(url: str) -> bool:
+        return url.startswith(f"{FAPI_BASE}/fapi/")
+
+    def _wait_futures_cooldown_if_needed(self):
+        with self._futures_weight_lock:
+            wait = max(0.0, self._futures_cooldown_until - time.monotonic())
+        if wait > 0:
+            time.sleep(wait)
+
+    def _check_futures_weight_and_maybe_cooldown(self, url: str, used_weight_1m: str | None):
+        if not self._is_futures_api(url) or not used_weight_1m:
+            return
+        try:
+            used_weight = int(used_weight_1m)
+        except ValueError:
+            return
+        threshold = self.request_weight_futures_limit_1m * 0.8
+        if used_weight <= threshold:
+            return
+        with self._futures_weight_lock:
+            now = time.monotonic()
+            self._futures_cooldown_until = max(self._futures_cooldown_until, now + 60)
+            wait = max(0.0, self._futures_cooldown_until - now)
+        if wait > 0:
+            time.sleep(wait)
+
     def _request(self, url: str, params: dict, headers: dict | None = None):
+        if self._is_futures_api(url):
+            self._wait_futures_cooldown_if_needed()
         try:
             res = self.session.get(url, params=params, headers=headers, timeout=self.timeout)
         except requests.RequestException as exc:
             raise BinanceError(502, f"無法連線至 Binance：{exc}") from exc
+        self._check_futures_weight_and_maybe_cooldown(url, res.headers.get("x-mbx-used-weight-1m"))
         try:
             data = res.json()
         except ValueError:

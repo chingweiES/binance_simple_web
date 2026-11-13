@@ -27,7 +27,7 @@ export function LoginScreen({ onLoggedIn }) {
       <form className="panel auth-form" onSubmit={submit}>
         <div className="topline">
           <span className="brand-mark" aria-hidden="true">B</span>
-          <span>BINANCE · USDT-M PERPETUAL</span>
+          <span>登入</span>
         </div>
         <h1>登入</h1>
         <label>

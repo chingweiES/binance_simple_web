@@ -40,19 +40,38 @@ export const EXTRA_COLUMNS = [
   { key: "globalAccountRatio", label: "多空人數比", historyKey: "globalAccountHistory", kind: "account" },
   { key: "openInterest", label: "最新持倉量" },
   { key: "topPositionRatio", label: "大戶持倉量多空比", historyKey: "topPositionHistory", kind: "position" },
-  { key: "topAccountRatio", label: "大戶帳戶數多空比", historyKey: "topAccountHistory", kind: "account" }
+  { key: "topAccountRatio", label: "大戶帳戶數多空比", historyKey: "topAccountHistory", kind: "account" },
+  { key: "totalVolume", label: "成交量" },
+  { key: "totalQuoteVolume", label: "成交額" },
+  { key: "totalTakerBuyVolume", label: "主動買入成交量" },
+  { key: "totalTakerBuyQuoteVolume", label: "主動買入成交額" },
+  { key: "totalTakerSellVolume", label: "主動賣出成交量" },
+  { key: "totalTakerSellQuoteVolume", label: "主動賣出成交額" }
 ];
 
 export function parseCandles(klines, symbol) {
   return klines.map((k) => {
-    const [open, high, low, close] = [k[1], k[2], k[3], k[4]].map(Number);
-    if (![open, high, low, close].every(Number.isFinite) || open === 0 || low === 0) {
+    const [open, high, low, close, volume, quoteVolume, takerBuyVolume, takerBuyQuoteVolume] = [
+      k[1],
+      k[2],
+      k[3],
+      k[4],
+      k[5],
+      k[7],
+      k[9],
+      k[10]
+    ].map(Number);
+    if (![open, high, low, close, volume, quoteVolume, takerBuyVolume, takerBuyQuoteVolume].every(Number.isFinite) || open === 0 || low === 0) {
       throw new Error(`${symbol} K 線資料格式不正確`);
     }
     return {
       bodyAmp: ((close - open) / open) * 100,
       wholeAmp: ((high - low) / low) * 100,
-      bull: close >= open
+      bull: close >= open,
+      volume,
+      quoteVolume,
+      takerBuyVolume,
+      takerBuyQuoteVolume
     };
   });
 }
@@ -60,7 +79,12 @@ export function parseCandles(klines, symbol) {
 export function makeAnalysisRow(symbol, allCandles, count, fundingRate) {
   const candles = allCandles.slice(-count);
   const bodyAmps = candles.map((c) => c.bodyAmp);
+  const sum = (values) => values.reduce((acc, v) => acc + v, 0);
   const avg = (values) => values.reduce((sum, v) => sum + v, 0) / values.length;
+  const totalVolume = sum(candles.map((c) => c.volume));
+  const totalQuoteVolume = sum(candles.map((c) => c.quoteVolume));
+  const totalTakerBuyVolume = sum(candles.map((c) => c.takerBuyVolume));
+  const totalTakerBuyQuoteVolume = sum(candles.map((c) => c.takerBuyQuoteVolume));
   const sameDirection = candles.every((c) => c.bull === candles[0].bull);
   const lastBodyAmp = bodyAmps.at(-1);
   return {
@@ -75,6 +99,12 @@ export function makeAnalysisRow(symbol, allCandles, count, fundingRate) {
     lastBodyAmp,
     absLastBodyAmp: Math.abs(lastBodyAmp),
     spikeMatch: Math.abs(lastBodyAmp) > 5 && bodyAmps.slice(0, -1).every((v) => Math.abs(v) < 1),
+    totalVolume,
+    totalQuoteVolume,
+    totalTakerBuyVolume,
+    totalTakerBuyQuoteVolume,
+    totalTakerSellVolume: totalVolume - totalTakerBuyVolume,
+    totalTakerSellQuoteVolume: totalQuoteVolume - totalTakerBuyQuoteVolume,
     candles: candles.length,
     extraLoading: true
   };

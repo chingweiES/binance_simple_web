@@ -16,6 +16,7 @@ def create_app() -> Flask:
         api_key=os.environ.get("BINANCE_API_KEY", "").strip(),
         api_secret=os.environ.get("BINANCE_API_SECRET", "").strip(),
         timeout=float(os.environ.get("BINANCE_TIMEOUT", "10")),
+        request_weight_futures_limit_1m=int(os.environ.get("REQUEST_WEIGHT_FUTURES_LIMIT_1M", "2400")),
     )
 
     auth_store = AuthStore(os.environ.get("DATA_DIR", "/data"))
