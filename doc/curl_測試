@@ -1,0 +1,42 @@
+curl --request GET \
+  --url 'https://api.binance.com/sapi/v1/asset/wallet/balance?timestamp=%3Cnumber%3E' \
+  --header 'X-MBX-APIKEY: '
+
+
+
+API_KEY=""
+SECRET_KEY=""
+
+
+
+
+
+# 全部 wallet 預估總價值
+APIMAINROUTE="https://api.binance.com"
+TIMESTAMP=$(date +%s%3N)
+QUERY_STRING="needBalanceDetail=true&omitZeroBalances=true&recvWindow=5000&timestamp=${TIMESTAMP}&quoteAsset=USDT"
+ROUTE="/sapi/v1/asset/wallet/balance"
+SIGNATURE=$(echo -n "$QUERY_STRING" | openssl dgst -sha256 -hmac "$SECRET_KEY" | awk '{print $2}')
+curl -X GET "${APIMAINROUTE}${ROUTE}?${QUERY_STRING}&signature=${SIGNATURE}" \
+     -H "X-MBX-APIKEY: ${API_KEY}" | jq .
+
+
+# Future 帳戶詳細資訊
+# https://developers.binance.com/zh-CN/docs/catalog/core-trading-derivatives-trading-usd-s-m-futures/api/rest-api/account#account-information-v3
+APIMAINROUTE="https://fapi.binance.com"
+TIMESTAMP=$(date +%s%3N)
+ROUTE="/fapi/v3/account"
+QUERY_STRING="omitZeroBalances=true&recvWindow=5000&timestamp=${TIMESTAMP}"
+SIGNATURE=$(echo -n "$QUERY_STRING" | openssl dgst -sha256 -hmac "$SECRET_KEY" | awk '{print $2}')
+curl -X GET "${APIMAINROUTE}${ROUTE}?${QUERY_STRING}&signature=${SIGNATURE}" \
+     -H "X-MBX-APIKEY: ${API_KEY}" | jq .
+
+
+APIMAINROUTE="https://fapi.binance.com"
+TIMESTAMP=$(date +%s%3N)
+ROUTE="/fapi/v3/balance"
+QUERY_STRING="omitZeroBalances=true&recvWindow=5000&timestamp=${TIMESTAMP}"
+SIGNATURE=$(echo -n "$QUERY_STRING" | openssl dgst -sha256 -hmac "$SECRET_KEY" | awk '{print $2}')
+curl -X GET "${APIMAINROUTE}${ROUTE}?${QUERY_STRING}&signature=${SIGNATURE}" \
+     -H "X-MBX-APIKEY: ${API_KEY}" | jq .
+
