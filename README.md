@@ -74,11 +74,11 @@ docker compose logs -f backend
 ## 本機開發
 
 ```bash
-cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-```
+cd backend
+uv sync
 
-```bash
-cd backend && BINANCE_API_KEY=... BINANCE_API_SECRET=... .venv/bin/python wsgi.py
+DATA_DIR="$HOME/.local/share/binance-simple-web-dev" \
+  uv run --env-file ../.env python -m flask --app wsgi:app run --debug --host 127.0.0.1 --port 8000
 ```
 
 ```bash

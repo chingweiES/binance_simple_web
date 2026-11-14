@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AccountStatus from "./components/AccountStatus.jsx";
 import { ChangePasswordForm, LoginScreen } from "./components/Auth.jsx";
 import AnalysisPanel from "./components/AnalysisPanel.jsx";
 import CandleChart from "./components/CandleChart.jsx";
@@ -59,6 +60,7 @@ function Dashboard({ onLogout }) {
     setDialog({ title: `${displaySymbol(symbol)} · 永續合約 K 線`, wide: true, content: <CandleChart symbol={symbol} initialInterval={interval ?? "15m"} /> });
   const openMoreInfo = (symbol) =>
     setDialog({ title: `${displaySymbol(symbol)} · 更多資訊`, content: <NetworkInfo symbol={symbol} /> });
+  const openAccountStatus = () => setDialog({ title: "帳戶狀況", wide: true, content: <AccountStatus /> });
   const openChangePassword = () => setDialog({ title: "修改密碼", content: <ChangePasswordForm /> });
   const logout = () => auth.logout().catch(() => {}).finally(onLogout);
 
@@ -72,12 +74,13 @@ function Dashboard({ onLogout }) {
             {!server ? "連線中…" : !server.ok ? "後端離線" : server.signedApi ? "後端正常 · 已設定金鑰" : "後端正常 · 未設定金鑰"}
           </span>
           <span className="header-actions">
+            <button type="button" onClick={openAccountStatus}>帳戶狀況</button>
             <button type="button" onClick={openChangePassword}>修改密碼</button>
             <button type="button" onClick={logout}>登出</button>
           </span>
         </div>
-        <h1>觀察站</h1>
-        <p className="intro">查詢 USDT 永續合約 24 小時行情、建立最愛清單，並用 K 線資料比較近期波動。所有 Binance 請求由自架後端代理，API Secret 只存在伺服器環境變數，不會傳到瀏覽器。</p>
+        {/* <h1>觀察站</h1> */}
+        {/* <p className="intro"></p> */}
       </header>
 
       <TickerPanel

@@ -1,0 +1,9 @@
+[project]
+name = "Binance_Simple_Web"
+version = "0.1.0"
+
+dependencies = [
+    "Flask==3.1.1",
+    "gunicorn==23.0.0",
+    "requests==2.32.4",
+]

@@ -32,6 +32,9 @@ export function market(path, params = {}) {
 }
 
 export const walletCoins = () => getJson("/api/wallet/coins");
+export const walletBalance = (quoteAsset = "USDT") =>
+  getJson(`/api/wallet/balance?quoteAsset=${encodeURIComponent(quoteAsset)}`);
+export const futuresAccount = () => getJson("/api/futures/account");
 
 export const auth = {
   me: () => getJson("/api/auth/me"),

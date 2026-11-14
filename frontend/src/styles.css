@@ -198,3 +198,12 @@ footer { margin-top: 26px; padding-top: 17px; border-top: 1px solid var(--border
 .auth-form .status { margin: 0; }
 .header-actions { display: flex; gap: 8px; }
 .header-actions button { min-height: 30px; padding: 0 10px; font-size: 12px; }
+
+/* 帳戶狀況彈窗 */
+.account-status { display: grid; gap: 12px; }
+.account-status-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.account-status-actions button { min-height: 36px; font-size: 13px; }
+.futures-account-tables { display: grid; gap: 16px; max-height: calc(80vh - 110px); overflow-y: auto; }
+.futures-account-tables .dialog-table { max-height: 42vh; }
+.account-table th:first-child, .account-table td:first-child { text-align: left; }
+

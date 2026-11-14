@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, current_app, jsonify, request
 
 from .auth import is_logged_in
-from .binance import BinanceError
+from .binance import BinanceError, FAPI_BASE
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -61,3 +61,17 @@ def market(path: str):
 def wallet_coins():
     """/sapi/v1/capital/config/getall（USER_DATA）。結果變動不頻繁，快取 10 分鐘。"""
     return jsonify(client().signed("/sapi/v1/capital/config/getall", ttl=600))
+
+
+@bp.get("/wallet/balance")
+def wallet_balance():
+    """/sapi/v1/asset/wallet/balance（USER_DATA）。預設以 USDT 計價。"""
+    quote_asset = request.args.get("quoteAsset", "USDT")
+    return jsonify(client().signed("/sapi/v1/asset/wallet/balance", params={"quoteAsset": quote_asset}))
+
+
+@bp.get("/futures/account")
+def futures_account():
+    """/fapi/v3/account（USER_DATA）。取得 USDⓈ-M 合約帳戶與部位資訊。"""
+    return jsonify(client().signed("/fapi/v3/account", base=FAPI_BASE))
+

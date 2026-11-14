@@ -133,7 +133,7 @@ class BinanceClient:
         if not self.has_credentials:
             raise BinanceError(500, "伺服器未設定 BINANCE_API_KEY / BINANCE_API_SECRET")
         params = dict(params or {})
-        key = f"sig:{path}?{urlencode(sorted(params.items()))}"
+        key = f"sig:{base}{path}?{urlencode(sorted(params.items()))}"
         cached = self.cache.get(key)
         if cached is not None:
             return cached
