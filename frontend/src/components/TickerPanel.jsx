@@ -88,7 +88,7 @@ export default function TickerPanel({ tickers, setTickers, favorites, setFavorit
         <div>
           <p className="eyebrow">MARKET OVERVIEW</p>
           <h2 id="ticker-title">USDT 永續合約行情</h2>
-          <p className="section-description">按下更新取得最新清單；點擊欄位名稱可切換升冪／降冪，點選星號加入最愛，點圖示開啟 K 線圖。</p>
+          {/* <p className="section-description">按下更新取得最新清單；點擊欄位名稱可切換升冪／降冪，點選星號加入最愛，點圖示開啟 K 線圖。</p> */}
         </div>
         <button className="primary" type="button" onClick={load} disabled={loading}>
           {loading ? "載入中…" : "載入／更新行情"}
